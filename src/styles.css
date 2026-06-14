@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+/* src/styles.css  aca van los estilos GLOBALES.*/
+@font-face {
+  font-family: 'pixelArtFont'; /* El nombre que vos quieras ponerle */
+  src: url('font/editundo.ttf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+input{
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+body {
+  background-image: var(--page-bg, none); /*Para el cambio de imagen segun componente.*/
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  transition: background-image 0.3s ease-in-out;
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'pixelArtFont', sans-serif; /* Usa la nueva fuente */
+}
