@@ -67,7 +67,7 @@ export class Registro {
         Toast.fire({
           icon: 'success',
           title: '¡Registro exitoso!'
-        });
+        });+
         
         this.router.navigate(['/home']);
       },
