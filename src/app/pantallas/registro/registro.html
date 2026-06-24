@@ -1,87 +1,135 @@
-<section class="vh-100" >
+<section class="vh-100">
   <div class="mask d-flex align-items-center h-100 gradient-custom-3">
-    <div class="container h-100">
-      <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="container h-100 py-5"> <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-12 col-md-9 col-lg-7 col-xl-6">
           <div class="card" style="border-radius: 15px;">
             <div class="card-body p-5">
               <h2 class="text-uppercase text-center mb-5">CREAR UNA CUENTA</h2>
 
               <form #formRegistro="ngForm">
-                <!-- NOMBRE -->
+                
                 <div class="form-outline mb-4">
-                  <label class="form-label">Nombre</label>
+                  <label class="form-label fw-bold">Nombre</label>
                   <input type="text" name="nombre" [(ngModel)]="nuevoUsuario.nombre"
-                         required minlength="3" pattern="^[a-zA-ZÀ-ÿ]+$" #nomRef="ngModel"
+                         required minlength="3" pattern="^[a-zA-ZÀ-ÿ\s]+$" #nomRef="ngModel"
                          class="form-control form-control-lg" 
-                         [class.is-invalid]="nomRef.invalid && nomRef.dirty" />
-                          <div class="invalid-feedback" *ngIf="nomRef.invalid && nomRef.dirty">
-                            <p *ngIf="nomRef.errors?.['pattern']">No se permiten números ni símbolos.</p>
-                            <p *ngIf="nomRef.errors?.['minlength']">Mínimo 3 caracteres.</p>
-                          </div>
+                         [class.is-invalid]="nomRef.invalid && (nomRef.dirty || nomRef.touched)" />
+                  <div class="invalid-feedback" *ngIf="nomRef.invalid && (nomRef.dirty || nomRef.touched)">
+                    <p class="m-0" *ngIf="nomRef.errors?.['required']">El nombre es requerido.</p>
+                    <p class="m-0" *ngIf="nomRef.errors?.['pattern']">No se permiten números ni símbolos.</p>
+                    <p class="m-0" *ngIf="nomRef.errors?.['minlength']">Mínimo 3 caracteres.</p>
+                  </div>
                 </div>
-                         
 
-                <!-- APELLIDO -->
                 <div class="form-outline mb-4">
-                  <label class="form-label">Apellido</label>
+                  <label class="form-label fw-bold">Apellido</label>
                   <input type="text" name="apellido" [(ngModel)]="nuevoUsuario.apellido" 
-                         required minlength="3" pattern="^[a-zA-ZÀ-ÿ]+$" #apeRef="ngModel"
+                         required minlength="3" pattern="^[a-zA-ZÀ-ÿ\s]+$" #apeRef="ngModel"
                          class="form-control form-control-lg" 
-                         [class.is-invalid]="apeRef.invalid && apeRef.dirty" />
-                          <div class="invalid-feedback" *ngIf="apeRef.invalid && apeRef.dirty">
-                            <p *ngIf="apeRef.errors?.['pattern']">No se permiten números ni símbolos.</p>
-                            <p *ngIf="apeRef.errors?.['minlength']">Mínimo 3 caracteres.</p>
-                          </div>
+                         [class.is-invalid]="apeRef.invalid && (apeRef.dirty || apeRef.touched)" />
+                  <div class="invalid-feedback" *ngIf="apeRef.invalid && (apeRef.dirty || apeRef.touched)">
+                    <p class="m-0" *ngIf="apeRef.errors?.['required']">El apellido es requerido.</p>
+                    <p class="m-0" *ngIf="apeRef.errors?.['pattern']">No se permiten números ni símbolos.</p>
+                    <p class="m-0" *ngIf="apeRef.errors?.['minlength']">Mínimo 3 caracteres.</p>
+                  </div>
                 </div>
 
-                <!-- EDAD -->
                 <div class="form-outline mb-4">
-                  <label class="form-label">Edad</label>
-                  <input type="number" name="edad" [(ngModel)]="nuevoUsuario.edad" 
-                         required min="18" #edadRef="ngModel"
+                  <label class="form-label fw-bold">Nombre de Usuario</label>
+                  <input type="text" name="username" [(ngModel)]="nuevoUsuario.username" 
+                         required minlength="4" pattern="^[a-zA-Z0-9_]+$" #userRef="ngModel"
                          class="form-control form-control-lg" 
-                         [class.is-invalid]="edadRef.invalid && edadRef.dirty" />
-                         <div class="invalid-feedback" *ngIf="edadRef.invalid && edadRef.dirty">
-                            <p *ngIf="edadRef.errors?.['min']">La edad debe ser mayor o igual a 18 CRECÉ!.</p>
-                         </div>
+                         [class.is-invalid]="userRef.invalid && (userRef.dirty || userRef.touched)" />
+                  <div class="invalid-feedback" *ngIf="userRef.invalid && (userRef.dirty || userRef.touched)">
+                    <p class="m-0" *ngIf="userRef.errors?.['required']">El nombre de usuario es obligatorio.</p>
+                    <p class="m-0" *ngIf="userRef.errors?.['minlength']">Mínimo 4 caracteres.</p>
+                    <p class="m-0" *ngIf="userRef.errors?.['pattern']">Solo letras, números y guión bajo (_).</p>
+                  </div>
                 </div>
 
-                <!-- EMAIL -->  
                 <div class="form-outline mb-4">
-                  <label class="form-label">Email</label>
+                  <label class="form-label fw-bold">Email</label>
                   <input type="email" name="email" [(ngModel)]="nuevoUsuario.email" 
                          required email #emailRef="ngModel"
                          class="form-control form-control-lg" 
-                         [class.is-invalid]="emailRef.invalid && emailRef.dirty" />
+                         [class.is-invalid]="emailRef.invalid && (emailRef.dirty || emailRef.touched)" />
+                  <div class="invalid-feedback" *ngIf="emailRef.invalid && (emailRef.dirty || emailRef.touched)">
+                    <p class="m-0" *ngIf="emailRef.errors?.['required']">El email es requerido.</p>
+                    <p class="m-0" *ngIf="emailRef.errors?.['email']">Ingresá un formato de correo válido.</p>
+                  </div>
                 </div>
 
-                <!-- CONTRASEÑA -->
                 <div class="form-outline mb-4">
-                  <label class="form-label">Contraseña</label>
+                  <label class="form-label fw-bold">Fecha de Nacimiento</label>
+                  <input type="date" name="fechaNacimiento" [(ngModel)]="nuevoUsuario.fechaNacimiento" 
+                         required #fechaRef="ngModel"
+                         class="form-control form-control-lg" 
+                         [class.is-invalid]="fechaRef.invalid && (fechaRef.dirty || fechaRef.touched)" />
+                  <div class="invalid-feedback" *ngIf="fechaRef.invalid && (fechaRef.dirty || fechaRef.touched)">
+                    <p class="m-0">La fecha de nacimiento es requerida.</p>
+                  </div>
+                </div>
+
+                <div class="form-outline mb-4">
+                  <label class="form-label fw-bold">Descripción breve</label>
+                  <textarea name="descripcion" [(ngModel)]="nuevoUsuario.descripcion" 
+                            maxlength="250" #descRef="ngModel" rows="3"
+                            class="form-control form-control-lg" placeholder="Contanos un poco sobre vos..."></textarea>
+                  <small class="text-muted d-block text-end">
+                    {{ nuevoUsuario.descripcion?.length || 0 }}/250 caracteres.
+                  </small>
+                </div>
+
+                <div class="form-outline mb-4">
+                <label class="form-label fw-bold">Imagen de Perfil</label>
+                <input type="file" 
+                      name="imagenPerfil" 
+                      accept="image/*"
+                      required 
+                      ngModel
+                      (change)="onFileSelected($event)" 
+                      #fileRef="ngModel"
+                      class="form-control form-control-lg"
+                      [class.is-invalid]="fileRef.invalid && (fileRef.dirty || fileRef.touched)" />
+                      
+                    <div class="invalid-feedback" *ngIf="fileRef.invalid && (fileRef.dirty || fileRef.touched)">
+                      La foto de perfil es obligatoria.
+                    </div>
+                  </div>
+
+
+                <div class="form-outline mb-4">
+                  <label class="form-label fw-bold">Contraseña</label>
                   <input type="password" name="clave" [(ngModel)]="clave" 
                          required minlength="6" #passRef="ngModel"
                          class="form-control form-control-lg" 
-                         [class.is-invalid]="passRef.invalid && passRef.dirty" />
+                         [class.is-invalid]="passRef.invalid && (passRef.dirty || passRef.touched)" />
+                  <div class="invalid-feedback" *ngIf="passRef.invalid && (passRef.dirty || passRef.touched)">
+                    <p class="m-0" *ngIf="passRef.errors?.['required']">La contraseña es requerida.</p>
+                    <p class="m-0" *ngIf="passRef.errors?.['minlength']">Debe tener al menos 6 caracteres.</p>
+                  </div>
                 </div>
 
-                <!-- REPETIR CONTRASEÑA -->
                 <div class="form-outline mb-4">
-                  <label class="form-label">Repetir Contraseña</label>
+                  <label class="form-label fw-bold">Repetir Contraseña</label>
                   <input type="password" name="repetirClave" [(ngModel)]="repetirClave" 
                          required class="form-control form-control-lg" 
-                         [class.is-invalid]="(repetirClave !== clave) && repetirClave.length > 0" />
+                         [class.is-invalid]="(repetirClave !== clave) && (repetirClave.length > 0)" />
+                  <div class="invalid-feedback" *ngIf="(repetirClave !== clave) && (repetirClave.length > 0)">
+                    <p class="m-0">Las contraseñas no coinciden.</p>
+                  </div>
                 </div>
 
                 <div class="d-flex justify-content-center">
-                  <button type="button" 
-                    [disabled]="formRegistro.invalid || clave !== repetirClave"
-                    class="btn btn-success btn-block btn-lg gradient-custom-4 text-body" 
+                  <button type="submit" 
+                    [disabled]="formRegistro.invalid || clave !== repetirClave || !nuevoUsuario.imagenPerfil"
+                    class="btn btn-success btn-block btn-lg gradient-custom-4 text-body fw-bold" 
                     (click)="registrar()">Registrarse!</button>
                 </div>
 
-                <p class="text-center text-muted mt-5 mb-0">Ya tenes cuenta :D ? <a href="/login"
-                    class="fw-bold text-body"><u>Entrá acá nene!!</u></a></p>
+                <p class="text-center text-muted mt-5 mb-0">Ya tenes cuenta :D ? 
+                  <a href="/login" class="fw-bold text-body"><u>Entrá acá nene!!</u></a>
+                </p>
 
               </form>
             </div>

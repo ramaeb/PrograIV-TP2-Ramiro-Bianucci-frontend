@@ -20,5 +20,8 @@ export const routes: Routes = [
     path: 'registro',
     // 🎯 CLAVE: Agregamos el archivo final en la ruta del import string
     loadComponent: () => import('./pantallas/registro/registro').then(m => m.Registro)
+  },
+  { path:'',
+    loadComponent: () => import('./pantallas/login/login').then(m => m.Login)
   }
 ];
