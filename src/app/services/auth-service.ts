@@ -54,7 +54,7 @@ export class AuthService {
     */
     registrarUsuario(formD: FormData): Observable<any> {
         // El HttpClient de Angular detecta el FormData y setea el boundary correcto por sí solo.
-        return this.http.post(`${this.apiUrl}/registro`, formD);
+        return this.http.post(`${this.apiUrl}/auth/registro`, formD);
       }
 
   /**
