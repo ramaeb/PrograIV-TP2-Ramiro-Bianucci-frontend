@@ -1,0 +1,111 @@
+<div class="card shadow-sm mb-4 border-0" style="border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+  
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-0 pt-3">
+    <div class="d-flex align-items-center">
+      <span class="bg-light text-success fw-bold p-2 fs-6 rounded text-wrap">
+        &#64;{{ post.autorUsuario }}
+      </span>
+      <small class="text-muted ms-3">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+    </div>
+
+    @if (post.usuarioId === miUsuarioId || authService.tipoUsuarioActual === 'admin') {
+      <button class="btn btn-sm btn-outline-danger border-0 fw-bold px-3 rounded-pill" (click)="eliminarPosteo()">
+        🗑️ Eliminar
+      </button>
+    }
+  </div>
+
+  @if (post.imagenUrl) {
+    <div class="position-relative w-100" style="max-height: 380px; overflow: hidden; background-color: #f8f9fa;">
+      <img [src]="post.imagenUrl" class="img-fluid w-100" style="object-fit: contain; max-height: 380px;" alt="Contenido multimedia" />
+    </div>
+  }
+
+  <div class="card-body pt-3">
+    <h5 class="fw-bold text-dark mb-2">{{ post.titulo }}</h5>
+    <p class="card-text text-secondary" style="white-space: pre-line;">{{ post.descripcion }}</p>
+  </div>
+
+  <div class="card-footer bg-transparent border-0 pb-3 d-flex gap-2 align-items-center">
+    
+    <button class="btn btn-sm px-3 py-2 rounded-pill d-flex align-items-center gap-2" 
+            [ngClass]="yaTieneMiLike ? 'btn-danger text-white' : 'btn-light text-secondary'"
+            (click)="toggleLike()">
+      <span>{{ yaTieneMiLike ? '❤️ Te gusta' : '🤍 Me gusta' }}</span>
+      <span class="badge rounded-pill bg-dark text-white">{{ post.likes?.length || 0 }}</span>
+    </button>
+
+    <button class="btn btn-sm btn-light text-secondary px-3 py-2 rounded-pill d-flex align-items-center gap-2"
+            (click)="mostrarComentarios = !mostrarComentarios">
+      <span>💬 Comentarios</span>
+      <span class="badge rounded-pill bg-secondary text-white">{{ post.comentarios?.length || 0 }}</span>
+    </button>
+
+  </div>
+
+  @if (mostrarComentarios) {
+    <div class="bg-light p-3 border-top">
+      
+      <div class="mb-3" style="max-height: 250px; overflow-y: auto;">
+        @if (post.comentarios && post.comentarios.length > 0) {
+          @for (comentario of post.comentarios; track comentario._id) {
+            <div class="bg-white p-2 rounded mb-2 shadow-sm border-start border-3 border-success">
+              
+              <div class="d-flex justify-content-between mb-1">
+                <div>
+                  <strong class="text-success small">&#64;{{ comentario.autorUsername }}</strong>
+                  
+                  @if (comentario.editado) {
+                    <small class="text-muted ms-1 italic fw-light" style="font-size: 0.7rem;">(Editado)</small>
+                  }
+                </div>
+                <small class="text-muted extra-small" style="font-size: 0.75rem;">
+                  {{ (comentario.fechaEdicion || comentario.fecha) | date:'dd/MM/yyyy HH:mm' }}
+                </small>
+              </div>
+
+              @if (comentarioIdEditando === comentario._id) {
+                <div class="input-group input-group-sm mt-1">
+                  <input type="text" class="form-control" [(ngModel)]="textoComentarioEditando" (keyup.enter)="guardarComentarioEditado(comentario._id)">
+                  <button class="btn btn-success btn-sm" (click)="guardarComentarioEditado(comentario._id)">✔</button>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicionComentario()">✖</button>
+                </div>
+              } @else {
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="m-0 text-dark small">{{ comentario.texto }}</p>
+                  
+                  @if (comentario.autorUsername === miUsername) {
+                    <button class="btn btn-link p-0 text-secondary text-decoration-none small fw-bold" 
+                            style="font-size: 0.75rem;" 
+                            (click)="comenzarEdicionComentario(comentario)">
+                      ✏️ Editar
+                    </button>
+                  }
+                </div>
+              }
+
+            </div>
+          }
+        } @else {
+          <p class="text-muted small italic text-center my-2">No hay comentarios aún. ¡Sé el primero!</p>
+        }
+      </div>
+
+      <div class="input-group input-group-sm mt-2">
+        <input type="text" 
+               class="form-control" 
+               placeholder="Escribe un comentario..." 
+               [(ngModel)]="nuevoComentarioTexto"
+               (keyup.enter)="enviarComentario()">
+        <button class="btn btn-success fw-bold px-3" 
+                type="button" 
+                [disabled]="!nuevoComentarioTexto.trim()"
+                (click)="enviarComentario()">
+          Enviar
+        </button>
+      </div>
+
+    </div>
+  }
+
+</div>

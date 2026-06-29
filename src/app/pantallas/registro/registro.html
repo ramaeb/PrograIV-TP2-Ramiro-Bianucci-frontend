@@ -101,12 +101,13 @@
                 <div class="form-outline mb-4">
                   <label class="form-label fw-bold">Contraseña</label>
                   <input type="password" name="clave" [(ngModel)]="clave" 
-                         required minlength="6" #passRef="ngModel"
-                         class="form-control form-control-lg" 
+                         required minlength="8" #passRef="ngModel"
+                         class="form-control form-control-lg" pattern="^(?=.*[A-Z])(?=.*\d).{8,}$"
                          [class.is-invalid]="passRef.invalid && (passRef.dirty || passRef.touched)" />
                   <div class="invalid-feedback" *ngIf="passRef.invalid && (passRef.dirty || passRef.touched)">
                     <p class="m-0" *ngIf="passRef.errors?.['required']">La contraseña es requerida.</p>
-                    <p class="m-0" *ngIf="passRef.errors?.['minlength']">Debe tener al menos 6 caracteres.</p>
+                    <p class="m-0" *ngIf="passRef.errors?.['minlength']">Debe tener al menos 8 caracteres.</p>
+                    <p class="m-0" *ngIf="passRef.errors?.['pattern']">La contraseña debe tener al menos una mayúscula y un número.</p>
                   </div>
                 </div>
 

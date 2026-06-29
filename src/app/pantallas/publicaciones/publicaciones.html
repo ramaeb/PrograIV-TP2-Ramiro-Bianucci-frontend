@@ -1,2 +1,74 @@
-<p>publicaciones works!</p>
-<button (click)="navegar('mi-perfil')">Mi perfil</button>
+<div class="card shadow-sm mb-4 border-0" style="border-radius: 12px; background-color: #f8f9fa;">
+  <div class="card-body p-4">
+    <h5 class="fw-bold text-success mb-3">Escribí algo...</h5>
+    
+    <div class="mb-3">
+      <input type="text" class="form-control mb-2" placeholder="Título de la publicación..." #txtTitulo>
+      <textarea class="form-control mb-2" rows="3" placeholder="¿Qué estás pensando?..." #txtDescripcion></textarea>
+      
+      <label class="form-label small text-muted fw-bold">Añadir imagen (Opcional):</label>
+      <input type="file" class="form-control" (change)="onFileSelected($event)">
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-success px-4 fw-bold rounded-pill" 
+              (click)="crearNuevaPublicacion(txtTitulo.value, txtDescripcion.value); txtTitulo.value=''; txtDescripcion.value=''">
+        🚀 Publicar
+      </button>
+    </div>
+  </div>
+</div>
+<div class="container py-4" style="max-width: 700px;">
+  
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+    <h4 class="fw-bold m-0 text-dark">Publicaciones Recientes</h4>
+    
+    <div class="btn-group" role="group" aria-label="Ordenamiento">
+      <button type="button" 
+              class="btn btn-sm" 
+              [ngClass]="ordenActual === 'fecha' ? 'btn-success fw-bold' : 'btn-outline-secondary'"
+              (click)="cambiarOrden('fecha')">
+        Más nuevas
+      </button>
+      
+      <button type="button" 
+              class="btn btn-sm" 
+              [ngClass]="ordenActual === 'likes' ? 'btn-success fw-bold' : 'btn-outline-secondary'"
+              (click)="cambiarOrden('likes')">
+        Ordenado por Likes
+      </button>
+    </div>
+  </div>
+
+  @if (listaPublicaciones.length > 0) {
+    
+    @for (item of listaPublicaciones; track item._id) {
+      <app-publicacion-card 
+        [post]="item" 
+        (postEliminado)="removerPostDeLaVista($event)">
+      </app-publicacion-card>
+    }
+
+  } @else {
+    <div class="text-center py-5 bg-white rounded shadow-sm">
+      <p class="text-muted m-0">No se encontraron publicaciones en esta sección.</p>
+    </div>
+  }
+
+  <div class="d-flex justify-content-between align-items-center mt-4 bg-white p-3 rounded shadow-sm">
+    <button class="btn btn-outline-success btn-sm px-4 fw-bold" 
+            [disabled]="offsetActual === 0" 
+            (click)="paginaAnterior()">
+      ← Anterior
+    </button>
+    
+    <span class="text-muted fw-bold">Página {{ paginaActual }}</span>
+    
+    <button class="btn btn-outline-success btn-sm px-4 fw-bold" 
+            [disabled]="!hayMasPublicaciones" 
+            (click)="paginaSiguiente()">
+      Siguiente →
+    </button>
+  </div>
+
+</div>

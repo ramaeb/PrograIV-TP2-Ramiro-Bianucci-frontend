@@ -1,0 +1,50 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm px-4 py-2">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    
+    <div class="d-flex align-items-center gap-3">
+      <a class="navbar-brand fw-bold text-success fs-4"  style="letter-spacing: 0.5px;">
+         SoCial.ES
+      </a>
+      
+      @if (usuarioLogueado) {
+        <div class="navbar-nav d-flex flex-row gap-2 ms-2">
+          <a class="nav-link fw-bold px-3 py-2 rounded-pill text-secondary transition" 
+             routerLink="/publicaciones" 
+             routerLinkActive="bg-success text-white active">
+            Publicaciones
+          </a>
+          <a class="nav-link fw-bold px-3 py-2 rounded-pill text-secondary transition" 
+             routerLink="/mi-perfil" 
+             routerLinkActive="bg-success text-white active">
+            👤 Mi Perfil
+          </a>
+        </div>
+      }
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      
+      @if (usuarioLogueado) {
+        <div class="d-flex align-items-center gap-2 border-end pe-3">
+          <span class="text-dark fw-bold d-none d-sm-inline">
+            {{ usuarioLogueado.username }} {{ usuarioLogueado.apellido }}
+          </span>
+          
+          <img [src]="usuarioLogueado.imagenPerfil || usuarioLogueado.fotoPerfil || 'assets/default-avatar.png'" 
+               class="rounded-circle border border-2 border-success shadow-sm" 
+               style="width: 42px; height: 42px; object-fit: cover;" 
+               alt="Foto de usuario" />
+        </div>
+
+        <button class="btn btn-sm btn-outline-danger fw-bold px-3 py-2 rounded-pill d-flex align-items-center gap-1 shadow-sm transition-all" 
+                (click)="logout()" 
+                title="Cerrar Sesión">
+          <span>🚪</span>
+          <span class="d-none d-md-inline">Desloguearse!</span>
+        </button>
+      }
+
+    </div>
+
+  </div>
+</nav>

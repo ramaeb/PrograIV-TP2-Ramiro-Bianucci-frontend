@@ -1,54 +1,91 @@
-
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // Si usás navegación
-import { inject } from '@angular/core';
-import { AuthService } from '../../services/auth-service'; // Asegurate de tener un servicio de autenticación
+import { Router, RouterModule } from '@angular/router'; 
+import { AuthService } from '../../services/auth-service'; 
+import { ErrorAlert, Toast } from '../../utils/sweetAlert';
+import { ChangeDetectorRef } from '@angular/core';
+
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, CommonModule],
+  standalone: true,
+  imports: [FormsModule, CommonModule, RouterModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class Login {
-  // 1. Propiedades vinculadas a los inputs mediante [(ngModel)]
+export class Login implements OnInit {
   email: string = '';
   clave: string = '';
+  cargando: boolean = false; 
+
   authService = inject(AuthService);
-  constructor(private router: Router) {
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  ngOnInit() {
+    // 💡 Opcional: Si el usuario ya tiene un token guardado, lo mandamos derecho al muro
+    if (localStorage.getItem('token')) {
+      this.router.navigate(['/publicaciones']);
+    }
   }
 
-  /**
-   * Método principal de login (Formulario válido)
-   */
   logearse(): void {
-    // Acá iría la llamada a tu servicio de autenticación (ej: AuthService)
+    if (this.cargando) return;
+
     console.log('Intentando iniciar sesión con:', this.email, this.clave);
+    this.cargando = true; 
+    this.cdr.detectChanges();
     
     this.authService.login(this.email, this.clave).subscribe({
-      next: (res) => {
-        // Redirigir al home o dashboard
-        this.router.navigate(['/home']);
+      next: (res: any) => {
+        console.log('¡Login exitoso en NestJS!', res);
+
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+        } else if (res.accessToken) {
+          localStorage.setItem('token', res.accessToken); 
+        }
+
+       
+        const datosUsuario = res.user || res.usuario || res;
+        localStorage.setItem('usuario', JSON.stringify(datosUsuario));
+
+        Toast.fire({
+          icon: 'success',
+          title: '¡Logueado con éxito!'
+        });
+        
+        this.cargando = false; 
+        this.cdr.detectChanges();
+
+        // Redirigimos al feed
+        this.router.navigate(['/publicaciones']);
       },
-      error: (err) => console.error('Error de autenticación', err)
+      error: (err) => { 
+        console.error('Error de autenticación', err);
+        this.cargando = false; 
+        this.cdr.detectChanges();
+
+        ErrorAlert.fire({
+          icon: 'error',
+          title: 'Error de logueo',
+          text: err.error?.message || 'Credenciales incorrectas o usuario inexistente.'
+        });
+      }
     });
- 
   }
 
-  /*Login rapido*/
+  /* Login rápido */
   logearseComun(): void {
-    this.email = 'usuario_comun'; // O un correo único
-    this.clave = 'User1234';       // Cumple: 8 caracteres, 1 mayúscula, 1 número
-    
+    this.email = 'testfinal@mail.com'; 
+    this.clave = 'Juan123456';       
     console.log('Login rápido: Usuario Común cargado');
     this.logearse();
   }
 
   logearseAdmin(): void {
     this.email = 'admin@sistema.com';
-    this.clave = 'Admin2026';       // Cumple: 8 caracteres, 1 mayúscula, 1 número
-    
+    this.clave = 'Admin2026';       
     console.log('Login rápido: Administrador cargado');
     this.logearse();
   }

@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth-service';
 export class Registro {
   private router = inject(Router);
   private authService = inject(AuthService);
-  // Asegurate de que tu interfaz/clase Usuario incluya estos campos nuevos si es necesario
+  //usuario nuevo
   nuevoUsuario: any = {
     nombre: '',
     apellido: '',
@@ -23,7 +23,7 @@ export class Registro {
     fechaNacimiento: '',
     descripcion: '',
     perfil: 'usuario',
-    imagenPerfil: null 
+    fotoPerfil: null 
   };
 
   clave: string = '';
@@ -38,12 +38,52 @@ export class Registro {
       console.log('Imagen seleccionada:', file.name);
     }
   }
+  mostrarError(mensaje: string) {
+    this.errorMsg = mensaje;
+    ErrorAlert.fire({
+      icon: 'error',
+      title: 'Validación local',
+      text: this.errorMsg
+    });
+  }
+  
+  validarContrasenia(): boolean {
+    //regex
+    const regexClave = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!this.clave) {
+      this.mostrarError('Por favor, ingresá una contraseña.');
+      return false;
+    }
+
+    if (!regexClave.test(this.clave)) {
+      this.mostrarError('La contraseña debe poseer al menos 8 caracteres, una mayúscula y un número.');
+      return false;
+    }
+
+    if (this.clave !== this.repetirClave) {
+      this.mostrarError('Las contraseñas no coinciden.');
+      return false;
+    }
+    return true;
+  }
 
   registrar() {
-    // 1. Instanciamos FormData
+    if (this.nuevoUsuario.invalid || this.clave !== this.repetirClave || !this.nuevoUsuario.imagenPerfil) {
+      this.errorMsg = 'Por favor, verificá que todos los campos cumplan con los requisitos.';
+      
+      ErrorAlert.fire({
+        icon: 'error',
+        title: 'Error de validación',
+        text: this.errorMsg
+      });
+      return; 
+    }
     const formData = new FormData();
-
-    // 2. Agregamos los datos del formulario (clave: valor)
+    if (!this.validarContrasenia()) {
+      return;
+    }
+    //datos form
     formData.append('nombre', this.nuevoUsuario.nombre);
     formData.append('apellido', this.nuevoUsuario.apellido);
     formData.append('username', this.nuevoUsuario.username);
@@ -53,29 +93,29 @@ export class Registro {
     formData.append('perfil', this.nuevoUsuario.perfil);
     formData.append('clave', this.clave); 
 
-    // 3. Agregamos el archivo binario si existe
+    
     if (this.nuevoUsuario.imagenPerfil) {
-      formData.append('imagenPerfil', this.nuevoUsuario.imagenPerfil, this.nuevoUsuario.imagenPerfil.name);
+      formData.append('fotoPerfil', this.nuevoUsuario.imagenPerfil, this.nuevoUsuario.imagenPerfil.name);
     }
 
-    // 4. Llamamos al servicio y nos suscribimos al Observable
+    
     this.authService.registrarUsuario(formData).subscribe({
       next: (response) => {
-        // Entra acá si el backend responde con un HTTP Status 200 o 201
-        console.log('Registro exitoso en backend:', response);
-        
         Toast.fire({
           icon: 'success',
           title: '¡Registro exitoso!'
-        });+
+        });
+        // exitoso...
+        console.log('Registro exitoso en backend:', response);
         
-        this.router.navigate(['/home']);
+        
+        
+        this.router.navigate(['/login']);
       },
       error: (error) => {
-        // Entra acá si el backend devuelve un error (400, 404, 500, etc.)
+        
         console.error('Error al registrar:', error);
         
-        // Intentamos capturar el mensaje de error que mande tu backend en el body
         this.errorMsg = error.error?.message || 'Hubo un problema al conectar con el servidor.';
         
         ErrorAlert.fire({
