@@ -106,7 +106,6 @@ export class Registro {
           localStorage.setItem('token', response.accessToken);
         }
 
-
         const datosUsuario = response.user || response.usuario || response;
         localStorage.setItem('usuario', JSON.stringify(datosUsuario));
 

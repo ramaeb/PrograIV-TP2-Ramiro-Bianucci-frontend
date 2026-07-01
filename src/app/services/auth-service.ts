@@ -35,8 +35,7 @@ export class AuthService {
         localStorage.setItem('usuario', JSON.stringify(response));
         this.tipoUsuarioActual = response.perfil; 
         
-        // NOTA: El contador YA NO SE DISPARA ACÁ. 
-        // Se dispara únicamente en tu componente Login usando el TimeTokenService.
+        // El contador NO SE DISPARA ACÁ. 
       })
     );
   }

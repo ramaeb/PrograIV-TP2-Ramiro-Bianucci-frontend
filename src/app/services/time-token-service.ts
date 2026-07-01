@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Toast } from '../utils/sweetAlert';
 import { BehaviorSubject, Subscription, timer } from 'rxjs'; 
 import { map } from 'rxjs/operators';
-import { AuthService } from './auth-service'; // Importamos tu AuthService para sincronizar
+import { AuthService } from './auth-service'; 
 import Swal from 'sweetalert2';
 
 @Injectable({
@@ -13,8 +13,7 @@ import Swal from 'sweetalert2';
 export class TimeTokenService {
   private router = inject(Router);
   private http = inject(HttpClient);
-  private authService = inject(AuthService); // Inyectamos el servicio de autenticación
-  
+  private authService = inject(AuthService); 
   private segundosRestantes$ = new BehaviorSubject<number>(0);
   public tiempoVisual$ = this.segundosRestantes$.asObservable().pipe(
     map(segundos => this.formatearTiempo(segundos))
@@ -26,7 +25,7 @@ export class TimeTokenService {
   private apiUrl = 'https://prograiv-tp2-ramiro-bianucci-backend.onrender.com/auth/refresh';
 
 iniciarContador() {
-    // 1. Limpiamos SOLO las suscripciones anteriores en memoria, SIN borrar el localStorage
+    
     this.cuentaRegresivaSub?.unsubscribe();
     this.timerModalSub?.unsubscribe();
 
@@ -56,17 +55,17 @@ iniciarContador() {
       this.segundosRestantes$.next(segundosActuales);
 
       if (segundosActuales <= 0) {
-        this.limpiarContador(); // Al llegar a 0, ahora sí limpiamos todo
+        this.limpiarContador(); 
         this.mostrarModalExpiracion();
       }
     });
   }
-  // Modificamos este método para que actúe como una limpieza total de salida
+  
   limpiarContador() {
     this.cuentaRegresivaSub?.unsubscribe();
     this.timerModalSub?.unsubscribe();
     this.segundosRestantes$.next(0);
-    localStorage.removeItem('fecha_expiracion_contador'); // Solo se borra aquí
+    localStorage.removeItem('fecha_expiracion_contador'); 
   }
 
   private mostrarModalExpiracion() {
@@ -111,8 +110,8 @@ iniciarContador() {
   }
 
   forzarLogout() {
-    this.limpiarContador();          // 1. Matamos los hilos de RxJS de este servicio
-    this.authService.logout();       // 2. Usamos el método de autenticación para borrar localStorage y redirigir
+    this.limpiarContador();          
+    this.authService.logout();       
     Toast.fire({ icon: 'info', title: 'Sesión finalizada por inactividad.' });
   }
 

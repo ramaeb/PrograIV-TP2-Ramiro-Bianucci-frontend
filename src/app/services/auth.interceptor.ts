@@ -23,7 +23,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         console.warn('Interceptor: Token vencido o inválido (401). Forzando cierre...');
         
-        // Usamos tu servicio que limpia localStorage, frena el reloj y redirige al login
         timeTokenService.forzarLogout(); 
       }
       return throwError(() => error);

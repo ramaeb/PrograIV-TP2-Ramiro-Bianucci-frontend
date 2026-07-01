@@ -1,0 +1,90 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center bg-dark text-white p-3 rounded shadow-sm">
+      <h2 class="h4 mb-0"><i class="bi bi-bar-chart-line-fill me-2"></i>Dashboard: Estadísticas de la Red</h2>
+      <span class="badge bg-primary px-3 py-2">Métricas Dinámicas</span>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body p-3">
+      <form (ngSubmit)="consultarEstadisticas()" class="row g-3 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Fecha Inicio</label>
+          <input type="date" class="form-control" [(ngModel)]="fechaInicio" name="fechaInicio" required>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold text-muted small text-uppercase">Fecha Fin</label>
+          <input type="date" class="form-control" [(ngModel)]="fechaFin" name="fechaFin" required>
+        </div>
+        <div class="col-12 col-md-4">
+          <button type="submit" class="btn btn-dark w-100 fw-semibold py-2" [disabled]="cargando">
+            @if (cargando) {
+              <span class="spinner-border spinner-border-sm me-2"></span> Filtrando...
+            } @else {
+              <i class="bi bi-funnel-fill me-2"></i>Aplicar Lapso de Tiempo
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    
+    <div class="col-12 col-xl-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom-0">
+          <h5 class="card-title mb-0 text-primary fw-bold"><i class="bi bi-person-post me-2"></i>Publicaciones por Usuario</h5>
+          <small class="text-muted">Cantidad total redactada en el periodo establecido.</small>
+        </div>
+        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+          <div style="display: block; width: 100%; max-height: 300px;">
+            <canvas baseChart 
+                    [data]="barChartData" 
+                    [options]="barChartOptions" 
+                    [type]="barChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom-0">
+          <h5 class="card-title mb-0 text-success fw-bold"><i class="bi bi-graph-up me-2"></i>Evolución de Comentarios</h5>
+          <small class="text-muted">Frecuencia y volumen de interacciones por día en el lapso.</small>
+        </div>
+        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+          <div style="display: block; width: 100%; max-height: 300px;">
+            <canvas baseChart 
+                    [data]="lineChartData" 
+                    [options]="lineChartOptions" 
+                    [type]="lineChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-8 col-xl-6 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom-0">
+          <h5 class="card-title mb-0 text-warning fw-bold"><i class="bi bi-pie-chart-fill me-2"></i>Impacto por Publicación</h5>
+          <small class="text-muted">Distribución de comentarios recibidos por cada post.</small>
+        </div>
+        <div class="card-body p-4">
+          <div style="display: block; width: 100%; max-height: 300px;">
+            <canvas baseChart 
+                    [data]="doughnutChartData" 
+                    [options]="doughnutChartOptions" 
+                    [type]="doughnutChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
