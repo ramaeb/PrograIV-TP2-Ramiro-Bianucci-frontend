@@ -25,12 +25,12 @@ export class MiPerfil implements OnInit {
 
 
   ngOnInit() {
-    // 1. Levantamos los datos completos del usuario desde el localStorage
+    
     const usuarioLocalStorage = localStorage.getItem('usuario');
     if (usuarioLocalStorage) {
       this.usuarioData = JSON.parse(usuarioLocalStorage);
       
-      // 2. Cargamos sus publicaciones usando su ID único
+     
       this.obtenerMisPublicaciones(this.usuarioData._id);
     }
   }
@@ -54,12 +54,11 @@ export class MiPerfil implements OnInit {
     this.router.navigate([ruta]);
   }
  obtenerMisPublicaciones(usuarioId: string) {
-    // 🎯 CORREGIDO: Usamos la ruta GET con Query Params para filtrar y limitar a 3 elementos directamente desde el Backend
+   
     const url = `${this.apiUrl}?usuarioId=${usuarioId}&orden=fecha&limit=3&offset=0`;
     
     this.http.get<any[]>(url).subscribe({
       next: (publicaciones) => {
-        // Asignamos directamente porque el backend ya las devuelve filtradas, ordenadas y limitadas
         this.ultimasPublicaciones = publicaciones;
   
         this.cdr.detectChanges(); 

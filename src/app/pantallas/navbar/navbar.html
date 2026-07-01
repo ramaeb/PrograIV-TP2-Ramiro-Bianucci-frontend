@@ -2,22 +2,37 @@
   <div class="container-fluid d-flex justify-content-between align-items-center">
     
     <div class="d-flex align-items-center gap-3">
-      <a class="navbar-brand fw-bold text-success fs-4"  style="letter-spacing: 0.5px;">
-         SoCial.ES
+      <a class="navbar-brand fw-bold text-success fs-4" style="letter-spacing: 0.5px;">
+        SoCial.ES
       </a>
       
       @if (usuarioLogueado) {
-        <div class="navbar-nav d-flex flex-row gap-2 ms-2">
+        <div class="navbar-nav d-flex flex-row gap-2 ms-2 align-items-center">
+          
           <a class="nav-link fw-bold px-3 py-2 rounded-pill text-secondary transition" 
              routerLink="/publicaciones" 
              routerLinkActive="bg-success text-white active">
             Publicaciones
           </a>
+
           <a class="nav-link fw-bold px-3 py-2 rounded-pill text-secondary transition" 
              routerLink="/mi-perfil" 
              routerLinkActive="bg-success text-white active">
             👤 Mi Perfil
           </a>
+
+          @if (esAdmin) {
+            <a class="nav-link fw-bold px-3 py-2 rounded-pill text-danger transition border border-danger-subtle bg-danger-subtle" 
+               routerLink="/dashboard/usuarios" 
+               routerLinkActive="bg-danger text-white active">
+              ⚙️ Dashboard
+            </a>
+          }
+
+          <div class="contador-sesion ms-2">
+            <small class="text-muted fw-bold">⏱️ Sesión: {{ timeTokenService.tiempoVisual$ | async }}</small>
+          </div>
+
         </div>
       }
     </div>

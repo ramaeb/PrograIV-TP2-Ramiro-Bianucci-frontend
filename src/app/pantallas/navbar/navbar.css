@@ -1,0 +1,21 @@
+.contador-sesion {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: black;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.reloj-icono {
+  margin-right: 6px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}

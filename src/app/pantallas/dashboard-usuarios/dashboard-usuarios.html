@@ -1,0 +1,173 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center bg-dark text-white p-3 rounded shadow-sm">
+      <h2 class="h4 mb-0"><i class="bi bi-shield-lock-fill me-2"></i>Dashboard: Control de Usuarios</h2>
+      <span class="badge bg-danger px-3 py-2">Panel de Administrador</span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-xl-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white py-3">
+          <h5 class="card-title mb-0"><i class="bi bi-person-plus-fill me-2"></i>Registrar Nuevo Usuario</h5>
+        </div>
+        <div class="card-body p-4">
+          <form (ngSubmit)="crearUsuario()" #userForm="ngForm" enctype="multipart/form-data">
+            
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.nombre" name="nombre" required placeholder="Ej: Juan">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Apellido</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.apellido" name="apellido" required placeholder="Ej: Pérez">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre de Usuario (Username)</label>
+              <div class="input-group">
+                <span class="input-group-text"></span>
+                <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.username" name="username" required placeholder="juanperez">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Correo Electrónico</label>
+              <input type="email" class="form-control" [(ngModel)]="nuevoUsuario.email" name="email" required placeholder="juan@mail.com">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Fecha de Nacimiento</label>
+              <input type="date" class="form-control" [(ngModel)]="nuevoUsuario.fechaNacimiento" name="fechaNacimiento" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Descripción (Opcional)</label>
+              <textarea class="form-control" [(ngModel)]="nuevoUsuario.descripcion" name="descripcion" rows="2" placeholder="Breve bío..."></textarea>
+            </div>
+
+            <div class="mb-3 p-3 bg-light rounded border">
+              <label class="form-label d-block fw-bold mb-2">Perfil del Usuario</label>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="perfil" id="perfilUsuario" value="usuario" [(ngModel)]="nuevoUsuario.perfil" checked>
+                <label class="form-check-label" for="perfilUsuario">
+                  <i class="bi bi-person me-1"></i>Usuario
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="perfil" id="perfilAdmin" value="admin" [(ngModel)]="nuevoUsuario.perfil">
+                <label class="form-check-label text-danger fw-semibold" for="perfilAdmin">
+                  <i class="bi bi-shield-check me-1"></i>Administrador
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Imagen de Perfil</label>
+              <input type="file" class="form-control" (change)="onFileSelected($event)">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Contraseña Inicial</label>
+              <input type="password" class="form-control" [(ngModel)]="nuevoUsuario.clave" name="clave" required minlength="8" placeholder="Mínimo 8 caracteres">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" [disabled]="cargandoForm || !userForm.valid">
+              @if (cargandoForm) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Guardando...
+              } @else {
+                <i class="bi bi-check-circle-fill me-2"></i>Crear Usuario
+              }
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0"><i class="bi bi-people-fill me-2"></i>Usuarios Registrados</h5>
+          <button class="btn btn-sm btn-outline-light" (click)="cargarUsuarios()">
+            <i class="bi bi-arrow-clockwise"></i> Actualizar
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" class="ps-3">Usuario</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Fecha Nacimiento</th>
+                  <th scope="col">Perfil</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col" class="text-end pe-3">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (usuarios.length === 0) {
+                  <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                      <div class="spinner-border spinner-border-sm me-2 text-primary" role="status"></div>
+                      Cargando listado de usuarios desde Render...
+                    </td>
+                  </tr>
+                }
+
+                @for (user of usuarios; track user._id) {
+                  <tr>
+                    <td class="ps-3">
+                      <div class="d-flex align-items-center">
+                        <img [src]="user.imagenPerfil" 
+                             appImagenDefecto="assets/default-avatar.png"
+                             alt="Avatar" class="rounded-circle me-3 border" width="40" height="40" 
+                             style="object-fit: cover;">
+                        <div>
+                          <p class="fw-bold mb-0">{{ user.nombre }} {{ user.apellido }}</p>
+                          <small class="text-muted">&#64;{{ user.username }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    
+                    <td>{{ user.email }}</td>
+                    
+                    <td>{{ user.fechaNacimiento | formatoFecha:'largo' }}</td>
+                    
+                    <td>
+                      <span class="badge" [ngClass]="user.perfil === 'admin' ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'">
+                        {{ user.perfil | perfilNombre }}
+                      </span>
+                    </td>
+                    
+                    <td>
+                      @if (user.activo) {
+                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Activo</span>
+                      } @else {
+                        <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i>Deshabilitado</span>
+                      }
+                    </td>
+                    
+                    <td class="text-end pe-3">
+                      @if (user.activo) {
+                        <button class="btn btn-sm btn-outline-danger" (click)="toggleEstado(user._id, false)" [disabled]="cargandoEstado === user._id">
+                          <i class="bi bi-person-x-fill me-1"></i> Dar de Baja
+                        </button>
+                      } @else {
+                        <button class="btn btn-sm btn-success" (click)="toggleEstado(user._id, true)" [disabled]="cargandoEstado === user._id">
+                          <i class="bi bi-person-check-fill me-1"></i> Dar de Alta
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

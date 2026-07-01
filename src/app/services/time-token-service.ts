@@ -1,0 +1,125 @@
+import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Toast } from '../utils/sweetAlert';
+import { BehaviorSubject, Subscription, timer } from 'rxjs'; 
+import { map } from 'rxjs/operators';
+import { AuthService } from './auth-service'; // Importamos tu AuthService para sincronizar
+import Swal from 'sweetalert2';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TimeTokenService {
+  private router = inject(Router);
+  private http = inject(HttpClient);
+  private authService = inject(AuthService); // Inyectamos el servicio de autenticación
+  
+  private segundosRestantes$ = new BehaviorSubject<number>(0);
+  public tiempoVisual$ = this.segundosRestantes$.asObservable().pipe(
+    map(segundos => this.formatearTiempo(segundos))
+  );
+
+  private cuentaRegresivaSub?: Subscription;
+  private timerModalSub?: Subscription;
+
+  private apiUrl = 'https://prograiv-tp2-ramiro-bianucci-backend.onrender.com/auth/refresh';
+
+iniciarContador() {
+    // 1. Limpiamos SOLO las suscripciones anteriores en memoria, SIN borrar el localStorage
+    this.cuentaRegresivaSub?.unsubscribe();
+    this.timerModalSub?.unsubscribe();
+
+    const diezMinutosEnMilisegundos = 10 * 60 * 1000;
+    let tiempoExpiracion = localStorage.getItem('fecha_expiracion_contador');
+
+    if (!tiempoExpiracion) {
+      const ahora = new Date().getTime();
+      tiempoExpiracion = (ahora + diezMinutosEnMilisegundos).toString();
+      localStorage.setItem('fecha_expiracion_contador', tiempoExpiracion);
+    }
+
+    const timestampExpiracion = parseInt(tiempoExpiracion, 10);
+
+    const calcularSegundosRestantes = () => {
+      const ahora = new Date().getTime();
+      return Math.max(0, Math.floor((timestampExpiracion - ahora) / 1000));
+    };
+
+    const segundosIniciales = calcularSegundosRestantes();
+    this.segundosRestantes$.next(segundosIniciales);
+
+    console.log(`Contador sincronizado. Quedan ${segundosIniciales} segundos.`);
+
+    this.cuentaRegresivaSub = timer(0, 1000).subscribe(() => {
+      const segundosActuales = calcularSegundosRestantes();
+      this.segundosRestantes$.next(segundosActuales);
+
+      if (segundosActuales <= 0) {
+        this.limpiarContador(); // Al llegar a 0, ahora sí limpiamos todo
+        this.mostrarModalExpiracion();
+      }
+    });
+  }
+  // Modificamos este método para que actúe como una limpieza total de salida
+  limpiarContador() {
+    this.cuentaRegresivaSub?.unsubscribe();
+    this.timerModalSub?.unsubscribe();
+    this.segundosRestantes$.next(0);
+    localStorage.removeItem('fecha_expiracion_contador'); // Solo se borra aquí
+  }
+
+  private mostrarModalExpiracion() {
+    Swal.fire({
+      title: '¿Seguís ahí?',
+      text: 'Tu sesión va a expirar en 5 minutos por seguridad. ¿Querés extenderla?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#dc3545',  
+      confirmButtonText: 'Sí, mantener sesión',
+      cancelButtonText: 'No, salir',
+      allowOutsideClick: false 
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.refrescarToken();
+      } else {
+        this.forzarLogout();
+      }
+    });
+  }
+
+  private refrescarToken() {
+    const tokenViejo = localStorage.getItem('token');
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${tokenViejo}` });
+
+    this.http.post<any>(this.apiUrl, {}, { headers }).subscribe({
+      next: (res) => {
+        if (res.token || res.accessToken) {
+          const nuevoToken = res.token || res.accessToken;
+          localStorage.setItem('token', nuevoToken);
+          
+          Toast.fire({ icon: 'success', title: 'Sesión extendida con éxito.' });
+          this.iniciarContador();
+        }
+      },
+      error: (err) => {
+        console.error('Error al intentar refrescar el token:', err);
+        this.forzarLogout();
+      }
+    });
+  }
+
+  forzarLogout() {
+    this.limpiarContador();          // 1. Matamos los hilos de RxJS de este servicio
+    this.authService.logout();       // 2. Usamos el método de autenticación para borrar localStorage y redirigir
+    Toast.fire({ icon: 'info', title: 'Sesión finalizada por inactividad.' });
+  }
+
+  private formatearTiempo(segundosTotales: number): string {
+    if (segundosTotales <= 0) return '00:00';
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+    return `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+  }
+}

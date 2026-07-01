@@ -1,20 +1,22 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Toast, ErrorAlert } from '../../utils/sweetAlert';
-import { Usuario } from '../../models/usuario';
 import { AuthService } from '../../services/auth-service';
+import { TimeTokenService } from '../../services/time-token-service';
+
 @Component({
   selector: 'app-registro',
-  imports: [FormsModule, CommonModule],
+  standalone: true,
+  imports: [FormsModule, CommonModule, RouterModule],
   templateUrl: './registro.html',
   styleUrl: './registro.css',
 })
 export class Registro {
   private router = inject(Router);
   private authService = inject(AuthService);
-  //usuario nuevo
+  private sessionTimer = inject(TimeTokenService);
   nuevoUsuario: any = {
     nombre: '',
     apellido: '',
@@ -23,14 +25,13 @@ export class Registro {
     fechaNacimiento: '',
     descripcion: '',
     perfil: 'usuario',
-    fotoPerfil: null 
+    imagenPerfil: null // Sincronizado con onFileSelected
   };
 
   clave: string = '';
   repetirClave: string = '';
   errorMsg: string = '';
 
-  // Capturar el archivo de imagen de perfil
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
@@ -38,6 +39,7 @@ export class Registro {
       console.log('Imagen seleccionada:', file.name);
     }
   }
+
   mostrarError(mensaje: string) {
     this.errorMsg = mensaje;
     ErrorAlert.fire({
@@ -48,7 +50,6 @@ export class Registro {
   }
   
   validarContrasenia(): boolean {
-    //regex
     const regexClave = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     if (!this.clave) {
@@ -69,21 +70,18 @@ export class Registro {
   }
 
   registrar() {
-    if (this.nuevoUsuario.invalid || this.clave !== this.repetirClave || !this.nuevoUsuario.imagenPerfil) {
-      this.errorMsg = 'Por favor, verificá que todos los campos cumplan con los requisitos.';
-      
-      ErrorAlert.fire({
-        icon: 'error',
-        title: 'Error de validación',
-        text: this.errorMsg
-      });
+    // 💡 Corregido: Validamos que los campos requeridos no estén vacíos en lugar de usar .invalid
+    if (!this.nuevoUsuario.nombre || !this.nuevoUsuario.apellido || !this.nuevoUsuario.username || !this.nuevoUsuario.email) {
+      this.mostrarError('Por favor, completa todos los campos obligatorios.');
       return; 
     }
-    const formData = new FormData();
+
     if (!this.validarContrasenia()) {
       return;
     }
-    //datos form
+
+    const formData = new FormData();
+    
     formData.append('nombre', this.nuevoUsuario.nombre);
     formData.append('apellido', this.nuevoUsuario.apellido);
     formData.append('username', this.nuevoUsuario.username);
@@ -92,30 +90,36 @@ export class Registro {
     formData.append('descripcion', this.nuevoUsuario.descripcion);
     formData.append('perfil', this.nuevoUsuario.perfil);
     formData.append('clave', this.clave); 
-
     
     if (this.nuevoUsuario.imagenPerfil) {
       formData.append('fotoPerfil', this.nuevoUsuario.imagenPerfil, this.nuevoUsuario.imagenPerfil.name);
     }
 
-    
     this.authService.registrarUsuario(formData).subscribe({
-      next: (response) => {
-        Toast.fire({
-          icon: 'success',
-          title: '¡Registro exitoso!'
-        });
-        // exitoso...
+      next: (response: any) => {
         console.log('Registro exitoso en backend:', response);
         
+
+        if (response.token) {
+          localStorage.setItem('token', response.token);
+        } else if (response.accessToken) {
+          localStorage.setItem('token', response.accessToken);
+        }
+
+
+        const datosUsuario = response.user || response.usuario || response;
+        localStorage.setItem('usuario', JSON.stringify(datosUsuario));
+
+        Toast.fire({
+          icon: 'success',
+          title: '¡Registro e inicio de sesión exitoso!'
+        });
         
         
-        this.router.navigate(['/login']);
+        this.router.navigate(['/publicaciones']);
       },
       error: (error) => {
-        
         console.error('Error al registrar:', error);
-        
         this.errorMsg = error.error?.message || 'Hubo un problema al conectar con el servidor.';
         
         ErrorAlert.fire({
