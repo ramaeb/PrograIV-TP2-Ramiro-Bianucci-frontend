@@ -35,6 +35,11 @@ export const routes: Routes = [
     canActivate: [authGuard,adminGuard], 
     loadComponent: () => import('./pantallas/estadisticas/estadisticas').then(m => m.DashboardEstadisticas)
   },
+   {
+    path: 'usuarios/:username',
+    canActivate: [authGuard], 
+    loadComponent: () => import('./pantallas/perfil-usuario/perfil-usuario').then(m => m.PerfilUsuario)
+  },
   { 
     path: '**', 
     redirectTo: '' 

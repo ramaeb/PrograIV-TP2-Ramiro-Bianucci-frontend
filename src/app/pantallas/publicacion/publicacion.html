@@ -2,7 +2,7 @@
   
   <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-0 pt-3">
     <div class="d-flex align-items-center">
-      <a [routerLink]="['/perfil', post.autorUsuario]" 
+      <a [routerLink]="['/usuarios', post.autorUsuario]" 
          class="bg-light text-success fw-bold p-2 fs-6 rounded text-wrap text-decoration-none transition-link"
          style="cursor: pointer;"
          title="Ver perfil de {{ post.autorUsuario }}">
@@ -54,7 +54,7 @@
             <div class="bg-white p-2 rounded mb-2 shadow-sm border-start border-3 border-success">
               <div class="d-flex justify-content-between mb-1">
                 <div>
-                  <a [routerLink]="['/perfil', $any(comentario).autorUsername]"
+                  <a [routerLink]="['/usuarios', $any(comentario).autorUsername]"
                      class="text-success small fw-bold text-decoration-none transition-link-text"
                      style="cursor: pointer;"
                      title="Ver perfil de {{ $any(comentario).autorUsername }}">
@@ -118,7 +118,7 @@
       
       <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
         <div class="d-flex align-items-center">
-          <a [routerLink]="['/perfil', post.autorUsuario]" 
+          <a [routerLink]="['/usuarios', post.autorUsuario]" 
              (click)="cerrarModal($event)"
              class="bg-success text-white fw-bold px-3 py-2 fs-5 rounded-pill text-decoration-none transition-link"
              style="cursor: pointer;"
@@ -158,7 +158,7 @@
               <div class="bg-light p-3 rounded mb-3 shadow-sm border-start border-4 border-success">
                 <div class="d-flex justify-content-between mb-1">
                   <div>
-                    <a [routerLink]="['/perfil', $any(comentario).autorUsername]"
+                    <a [routerLink]="['/usuarios', $any(comentario).autorUsername]"
                        (click)="cerrarModal($event)"
                        class="text-success fw-bold text-decoration-none transition-link-text"
                        style="cursor: pointer;"
