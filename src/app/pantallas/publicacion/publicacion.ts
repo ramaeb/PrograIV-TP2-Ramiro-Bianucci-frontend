@@ -5,11 +5,13 @@ import { AuthService } from '../../services/auth-service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ErrorAlert, Toast } from '../../utils/sweetAlert';
 import { FormsModule } from '@angular/forms'; 
-
+import { CortarTextoPipe } from '../../pipes/cortar-texto-pipe';
+import { ContadorCaracteresDirective } from '../../directivas/contar-caracteres';
+import { RouterModule } from '@angular/router'; 
 @Component({
   selector: 'app-publicacion-card',
   standalone: true,
-  imports: [CommonModule, FormsModule], 
+  imports: [CommonModule, FormsModule, CortarTextoPipe, ContadorCaracteresDirective, RouterModule], 
   templateUrl: './publicacion.html',
   styleUrl: './publicacion.css'
 })
@@ -28,9 +30,12 @@ export class PublicacionComponent implements OnInit {
   miUsername: string = ''; 
   yaTieneMiLike: boolean = false;
   
-
   mostrarComentarios: boolean = false;
   nuevoComentarioTexto: string = '';
+
+  // ◄ NUEVAS PROPIEDADES PARA LAS CONSIGNAS:
+  comentariosLimite: number = 3; // Cantidad inicial de comentarios a mostrar
+  modalAbierto: boolean = false; // Controla la vista en grande tipo "otra página"
 
   ngOnInit() {
     const usuarioLocal = localStorage.getItem('usuario');
@@ -40,6 +45,25 @@ export class PublicacionComponent implements OnInit {
       this.miUsername = user.username; 
       this.yaTieneMiLike = this.post.likes?.includes(this.miUsuarioId);
     }
+  }
+
+  // Aumenta el límite sin perder los comentarios anteriores
+  cargarMasComentarios(event: Event) {
+    event.stopPropagation(); // Evita que se abra el modal al hacer click en el botón
+    this.comentariosLimite += 5;
+    this.cdr.detectChanges();
+  }
+
+  abrirModal() {
+    this.modalAbierto = true;
+    // Opcional: bloquea el scroll del fondo
+    document.body.style.overflow = 'hidden';
+  }
+
+  cerrarModal(event: Event) {
+    event.stopPropagation();
+    this.modalAbierto = false;
+    document.body.style.overflow = 'auto';
   }
 
   toggleLike() {
@@ -65,7 +89,6 @@ export class PublicacionComponent implements OnInit {
     }
   }
 
-
   enviarComentario() {
     if (!this.nuevoComentarioTexto.trim()) return;
 
@@ -77,7 +100,6 @@ export class PublicacionComponent implements OnInit {
 
     this.http.post(url, body).subscribe({
       next: (postActualizado: any) => {
-        // Mongoos devuelve el post entero.
         this.post.comentarios = postActualizado.comentarios;
         this.nuevoComentarioTexto = '';
         
@@ -129,6 +151,7 @@ export class PublicacionComponent implements OnInit {
       }
     });
   }
+
   comenzarEdicionComentario(comentario: any) {
     this.comentarioIdEditando = comentario._id;
     this.textoComentarioEditando = comentario.texto;
@@ -139,7 +162,6 @@ export class PublicacionComponent implements OnInit {
     this.textoComentarioEditando = '';
   }
 
-  // Guarda los cambios en el servidor
   guardarComentarioEditado(comentarioId: string) {
     if (!this.textoComentarioEditando.trim()) return;
 

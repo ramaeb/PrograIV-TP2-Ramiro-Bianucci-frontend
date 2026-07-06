@@ -21,13 +21,19 @@
             👤 Mi Perfil
           </a>
 
-          @if (esAdmin) {
-            <a class="nav-link fw-bold px-3 py-2 rounded-pill text-danger transition border border-danger-subtle bg-danger-subtle" 
-               routerLink="/dashboard/usuarios" 
-               routerLinkActive="bg-danger text-white active">
-              ⚙️ Dashboard
-            </a>
-          }
+          <a *appSoloAdmin 
+             class="nav-link fw-bold px-3 py-2 rounded-pill text-danger transition border border-danger-subtle bg-danger-subtle" 
+             routerLink="/dashboard/usuarios" 
+             routerLinkActive="bg-danger text-white active">
+            ⚙️ Dashboard
+          </a>
+          
+          <a *appSoloAdmin 
+             class="nav-link fw-bold px-3 py-2 rounded-pill text-danger transition border border-danger-subtle bg-danger-subtle" 
+             routerLink="/dashboard/estadisticas" 
+             routerLinkActive="bg-danger text-white active">
+            ⚙️ Estadisticas
+          </a>
 
           <div class="contador-sesion ms-2">
             <small class="text-muted fw-bold">⏱️ Sesión: {{ timeTokenService.tiempoVisual$ | async }}</small>
@@ -46,6 +52,7 @@
           </span>
           
           <img [src]="usuarioLogueado.imagenPerfil || usuarioLogueado.fotoPerfil || 'assets/default-avatar.png'" 
+               appFallbackAvatar
                class="rounded-circle border border-2 border-success shadow-sm" 
                style="width: 42px; height: 42px; object-fit: cover;" 
                alt="Foto de usuario" />

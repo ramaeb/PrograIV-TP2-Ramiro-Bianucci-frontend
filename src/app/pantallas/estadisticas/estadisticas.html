@@ -11,11 +11,11 @@
       <form (ngSubmit)="consultarEstadisticas()" class="row g-3 align-items-end">
         <div class="col-12 col-md-4">
           <label class="form-label fw-semibold text-muted small text-uppercase">Fecha Inicio</label>
-          <input type="date" class="form-control" [(ngModel)]="fechaInicio" name="fechaInicio" required>
+          <input type="date" class="form-control" [(ngModel)]="fechaInicio" name="fechaInicio" [max]="fechaMaxima" required>
         </div>
         <div class="col-12 col-md-4">
           <label class="form-label fw-semibold text-muted small text-uppercase">Fecha Fin</label>
-          <input type="date" class="form-control" [(ngModel)]="fechaFin" name="fechaFin" required>
+          <input type="date" class="form-control" [(ngModel)]="fechaFin" name="fechaFin" [max]="fechaMaxima" required>
         </div>
         <div class="col-12 col-md-4">
           <button type="submit" class="btn btn-dark w-100 fw-semibold py-2" [disabled]="cargando">
@@ -40,11 +40,7 @@
         </div>
         <div class="card-body p-4 d-flex align-items-center justify-content-center">
           <div style="display: block; width: 100%; max-height: 300px;">
-            <canvas baseChart 
-                    [data]="barChartData" 
-                    [options]="barChartOptions" 
-                    [type]="barChartType">
-            </canvas>
+            <canvas #barChartCanvas></canvas>
           </div>
         </div>
       </div>
@@ -58,11 +54,7 @@
         </div>
         <div class="card-body p-4 d-flex align-items-center justify-content-center">
           <div style="display: block; width: 100%; max-height: 300px;">
-            <canvas baseChart 
-                    [data]="lineChartData" 
-                    [options]="lineChartOptions" 
-                    [type]="lineChartType">
-            </canvas>
+            <canvas #lineChartCanvas></canvas>
           </div>
         </div>
       </div>
@@ -76,11 +68,7 @@
         </div>
         <div class="card-body p-4">
           <div style="display: block; width: 100%; max-height: 300px;">
-            <canvas baseChart 
-                    [data]="doughnutChartData" 
-                    [options]="doughnutChartOptions" 
-                    [type]="doughnutChartType">
-            </canvas>
+            <canvas #doughnutChartCanvas></canvas>
           </div>
         </div>
       </div>

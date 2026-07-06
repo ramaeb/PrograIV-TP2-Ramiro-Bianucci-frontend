@@ -14,7 +14,7 @@ export class PaginaCarga implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  // URL del endpoint de validación en tu NestJS
+  //endp
   private apiAuthUrl = 'https://prograiv-tp2-ramiro-bianucci-backend.onrender.com/auth/login';
 
   ngOnInit() {
@@ -25,8 +25,7 @@ export class PaginaCarga implements OnInit {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      setTimeout(() => this.router.navigate(['/login']), 1000); // Un pequeño delay para que luzca el spinner
-      return;
+      setTimeout(() => this.router.navigate(['/login']), 1000); // delay
     }
 
    
@@ -34,10 +33,10 @@ export class PaginaCarga implements OnInit {
       'Authorization': `Bearer ${token}`
     });
 
-    // Le pegamos a la ruta de NestJS
+    // ruta de NestJS
     this.http.get(this.apiAuthUrl, { headers }).subscribe({
       next: () => {
-        // En caso de que sea válido (Status 200/201), redirige a publicaciones
+        // redirige a publicaciones
         this.router.navigate(['/publicaciones']);
       },
       error: (err) => {

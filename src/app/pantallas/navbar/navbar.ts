@@ -5,10 +5,11 @@ import { AuthService } from '../../services/auth-service';
 import { Toast } from '../../utils/sweetAlert';
 import { ChangeDetectorRef } from '@angular/core';
 import {TimeTokenService} from '../../services/time-token-service';
+import {VistaSoloAdmin} from '../../directivas/vista-solo-admin';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule], 
+  imports: [CommonModule, RouterModule,VistaSoloAdmin], 
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
@@ -19,6 +20,7 @@ export class Navbar implements OnInit {
   public timeTokenService = inject(TimeTokenService);
   usuarioLogueado: any = null;
   esAdmin: boolean = false;
+
   ngOnInit() {
     this.verificarUsuario();
     this.verificarAdmin();

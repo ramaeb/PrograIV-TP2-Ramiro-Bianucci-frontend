@@ -2,9 +2,12 @@
   
   <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-0 pt-3">
     <div class="d-flex align-items-center">
-      <span class="bg-light text-success fw-bold p-2 fs-6 rounded text-wrap">
+      <a [routerLink]="['/perfil', post.autorUsuario]" 
+         class="bg-light text-success fw-bold p-2 fs-6 rounded text-wrap text-decoration-none transition-link"
+         style="cursor: pointer;"
+         title="Ver perfil de {{ post.autorUsuario }}">
         &#64;{{ post.autorUsuario }}
-      </span>
+      </a>
       <small class="text-muted ms-3">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
     </div>
 
@@ -15,19 +18,20 @@
     }
   </div>
 
-  @if (post.imagenUrl) {
-    <div class="position-relative w-100" style="max-height: 380px; overflow: hidden; background-color: #f8f9fa;">
-      <img [src]="post.imagenUrl" class="img-fluid w-100" style="object-fit: contain; max-height: 380px;" alt="Contenido multimedia" />
-    </div>
-  }
+  <div (click)="abrirModal()" style="cursor: pointer;" title="Click para ver en grande">
+    @if (post.imagenUrl) {
+      <div class="position-relative w-100" style="max-height: 380px; overflow: hidden; background-color: #f8f9fa;">
+        <img [src]="post.imagenUrl" class="img-fluid w-100" style="object-fit: contain; max-height: 380px;" alt="Contenido multimedia" />
+      </div>
+    }
 
-  <div class="card-body pt-3">
-    <h5 class="fw-bold text-dark mb-2">{{ post.titulo }}</h5>
-    <p class="card-text text-secondary" style="white-space: pre-line;">{{ post.descripcion }}</p>
+    <div class="card-body pt-3">
+      <h5 class="fw-bold text-dark mb-2 text-break">{{ post.titulo }}</h5>
+      <p class="card-text text-secondary text-break" style="white-space: pre-line;">{{ post.descripcion | cortarTexto:120 }}</p>
+    </div>
   </div>
 
   <div class="card-footer bg-transparent border-0 pb-3 d-flex gap-2 align-items-center">
-    
     <button class="btn btn-sm px-3 py-2 rounded-pill d-flex align-items-center gap-2" 
             [ngClass]="yaTieneMiLike ? 'btn-danger text-white' : 'btn-light text-secondary'"
             (click)="toggleLike()">
@@ -40,50 +44,57 @@
       <span>💬 Comentarios</span>
       <span class="badge rounded-pill bg-secondary text-white">{{ post.comentarios?.length || 0 }}</span>
     </button>
-
   </div>
 
   @if (mostrarComentarios) {
     <div class="bg-light p-3 border-top">
-      
-      <div class="mb-3" style="max-height: 250px; overflow-y: auto;">
+      <div class="mb-3" style="max-height: 400px; overflow-y: auto;">
         @if (post.comentarios && post.comentarios.length > 0) {
-          @for (comentario of post.comentarios; track comentario._id) {
+          @for (comentario of post.comentarios | slice:0:comentariosLimite; track $any(comentario)._id) {
             <div class="bg-white p-2 rounded mb-2 shadow-sm border-start border-3 border-success">
-              
               <div class="d-flex justify-content-between mb-1">
                 <div>
-                  <strong class="text-success small">&#64;{{ comentario.autorUsername }}</strong>
-                  
-                  @if (comentario.editado) {
+                  <a [routerLink]="['/perfil', $any(comentario).autorUsername]"
+                     class="text-success small fw-bold text-decoration-none transition-link-text"
+                     style="cursor: pointer;"
+                     title="Ver perfil de {{ $any(comentario).autorUsername }}">
+                    &#64;{{ $any(comentario).autorUsername }}
+                  </a>
+                  @if ($any(comentario).editado) {
                     <small class="text-muted ms-1 italic fw-light" style="font-size: 0.7rem;">(Editado)</small>
                   }
                 </div>
                 <small class="text-muted extra-small" style="font-size: 0.75rem;">
-                  {{ (comentario.fechaEdicion || comentario.fecha) | date:'dd/MM/yyyy HH:mm' }}
+                  {{ ($any(comentario).fechaEdicion || $any(comentario).fecha) | date:'dd/MM/yyyy HH:mm' }}
                 </small>
               </div>
 
-              @if (comentarioIdEditando === comentario._id) {
+              @if (comentarioIdEditando === $any(comentario)._id) {
                 <div class="input-group input-group-sm mt-1">
-                  <input type="text" class="form-control" [(ngModel)]="textoComentarioEditando" (keyup.enter)="guardarComentarioEditado(comentario._id)">
-                  <button class="btn btn-success btn-sm" (click)="guardarComentarioEditado(comentario._id)">✔</button>
+                  <input type="text" class="form-control" [(ngModel)]="textoComentarioEditando" (keyup.enter)="guardarComentarioEditado($any(comentario)._id)" maxlength="250" appContadorCaracteres>
+                  <button class="btn btn-success btn-sm" (click)="guardarComentarioEditado($any(comentario)._id)">✔</button>
                   <button class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicionComentario()">✖</button>
                 </div>
               } @else {
                 <div class="d-flex justify-content-between align-items-center">
-                  <p class="m-0 text-dark small">{{ comentario.texto }}</p>
-                  
-                  @if (comentario.autorUsername === miUsername) {
+                  <p class="m-0 text-dark small text-break">{{ $any(comentario).texto }}</p>
+                  @if ($any(comentario).autorUsername === miUsername) {
                     <button class="btn btn-link p-0 text-secondary text-decoration-none small fw-bold" 
                             style="font-size: 0.75rem;" 
-                            (click)="comenzarEdicionComentario(comentario)">
+                            (click)="comenzarEdicionComentario($any(comentario))">
                       ✏️ Editar
                     </button>
                   }
                 </div>
               }
+            </div>
+          }
 
+          @if (post.comentarios.length > comentariosLimite) {
+            <div class="text-center mt-2">
+              <button class="btn btn-xs btn-outline-success fw-bold rounded-pill px-3" style="font-size: 0.8rem;" (click)="cargarMasComentarios($event)">
+                   Cargar más comentarios
+              </button>
             </div>
           }
         } @else {
@@ -92,20 +103,101 @@
       </div>
 
       <div class="input-group input-group-sm mt-2">
-        <input type="text" 
-               class="form-control" 
-               placeholder="Escribe un comentario..." 
-               [(ngModel)]="nuevoComentarioTexto"
-               (keyup.enter)="enviarComentario()">
-        <button class="btn btn-success fw-bold px-3" 
-                type="button" 
-                [disabled]="!nuevoComentarioTexto.trim()"
-                (click)="enviarComentario()">
+        <input type="text" class="form-control" placeholder="Escribe un comentario..." [(ngModel)]="nuevoComentarioTexto" (keyup.enter)="enviarComentario()" maxlength="250" appContadorCaracteres>
+        <button class="btn btn-success fw-bold px-3" type="button" [disabled]="!nuevoComentarioTexto.trim()" (click)="enviarComentario()">
           Enviar
         </button>
       </div>
-
     </div>
   }
-
 </div>
+
+@if (modalAbierto) {
+  <div class="modal-backdrop-fullscreen" (click)="cerrarModal($event)">
+    <div class="modal-content-fullscreen bg-white p-4 shadow-lg" (click)="$event.stopPropagation()">
+      
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+        <div class="d-flex align-items-center">
+          <a [routerLink]="['/perfil', post.autorUsuario]" 
+             (click)="cerrarModal($event)"
+             class="bg-success text-white fw-bold px-3 py-2 fs-5 rounded-pill text-decoration-none transition-link"
+             style="cursor: pointer;"
+             title="Ver perfil de {{ post.autorUsuario }}">
+            &#64;{{ post.autorUsuario }}
+          </a>
+          <small class="text-muted ms-3 fs-6">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+        </div>
+        <button class="btn btn-close fs-4" (click)="cerrarModal($event)"></button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <h2 class="fw-bold text-dark mb-3 text-break">{{ post.titulo }}</h2>
+        
+        @if (post.imagenUrl) {
+          <div class="text-center mb-4 bg-light rounded p-2" style="max-height: 500px; overflow: hidden;">
+            <img [src]="post.imagenUrl" class="img-fluid rounded" style="max-height: 500px; object-fit: contain;" alt="Imagen grande" />
+          </div>
+        }
+
+        <p class="fs-5 text-secondary mb-5 text-break" style="white-space: pre-line; line-height: 1.6;">{{ post.descripcion }}</p>
+
+        <hr />
+
+        <h4 class="fw-bold text-success mb-3">💬 Conversación ({{ post.comentarios?.length || 0 }})</h4>
+        
+        <div class="input-group input-group-md mb-4 shadow-sm">
+          <input type="text" class="form-control" placeholder="Escribe un comentario en este hilo..." [(ngModel)]="nuevoComentarioTexto" (keyup.enter)="enviarComentario()" maxlength="250" appContadorCaracteres>
+          <button class="btn btn-success fw-bold px-4" type="button" [disabled]="!nuevoComentarioTexto.trim()" (click)="enviarComentario()">
+            🚀 Comentar
+          </button>
+        </div>
+
+        <div class="mb-4">
+          @if (post.comentarios && post.comentarios.length > 0) {
+            @for (comentario of post.comentarios; track $any(comentario)._id) {
+              <div class="bg-light p-3 rounded mb-3 shadow-sm border-start border-4 border-success">
+                <div class="d-flex justify-content-between mb-1">
+                  <div>
+                    <a [routerLink]="['/perfil', $any(comentario).autorUsername]"
+                       (click)="cerrarModal($event)"
+                       class="text-success fw-bold text-decoration-none transition-link-text"
+                       style="cursor: pointer;"
+                       title="Ver perfil de {{ $any(comentario).autorUsername }}">
+                      &#64;{{ $any(comentario).autorUsername }}
+                    </a>
+                    @if ($any(comentario).editado) {
+                      <small class="text-muted ms-1 italic fw-light" style="font-size: 0.75rem;">(Editado)</small>
+                    }
+                  </div>
+                  <small class="text-muted">
+                    {{ ($any(comentario).fechaEdicion || $any(comentario).fecha) | date:'dd/MM/yyyy HH:mm' }}
+                  </small>
+                </div>
+
+                @if (comentarioIdEditando === $any(comentario)._id) {
+                  <div class="input-group input-group-sm mt-2">
+                    <input type="text" class="form-control" [(ngModel)]="textoComentarioEditando" (keyup.enter)="guardarComentarioEditado($any(comentario)._id)" maxlength="250" appContadorCaracteres>
+                    <button class="btn btn-success btn-sm" (click)="guardarComentarioEditado($any(comentario)._id)">✔</button>
+                    <button class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicionComentario()">✖</button>
+                  </div>
+                } @else {
+                  <div class="d-flex justify-content-between align-items-center mt-1">
+                    <p class="m-0 text-dark text-break">{{ $any(comentario).texto }}</p>
+                    @if ($any(comentario).autorUsername === miUsername) {
+                      <button class="btn btn-link p-0 text-secondary text-decoration-none small fw-bold" (click)="comenzarEdicionComentario($any(comentario))">
+                        ✏️ Editar
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          } @else {
+            <p class="text-muted italic text-center py-3">No hay comentarios en esta publicación aún. ¡Sé el primero!</p>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+}

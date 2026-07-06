@@ -14,13 +14,13 @@ import { TimeTokenService } from './services/time-token-service';
 export class App implements OnInit { // 2. Implementamos OnInit
   protected readonly title = signal('frontend-redsocial');
   
-  // 3. Inyectamos los servicios usando la sintaxis moderna limpia
+
   private router = inject(Router);
   private authService = inject(AuthService);
   private timeTokenService = inject(TimeTokenService);
 
   ngOnInit() {
-    // 4. Si el token existe en el localStorage al cargar la app (F5), re-activamos el reloj
+   
     if (this.authService.isAuthenticated()) {
       console.log('AppInit: Sesión activa detectada. Re-iniciando temporizador...');
       this.timeTokenService.iniciarContador();

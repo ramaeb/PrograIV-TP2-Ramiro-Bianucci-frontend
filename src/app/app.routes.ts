@@ -30,6 +30,11 @@ export const routes: Routes = [
   canActivate: [authGuard, adminGuard], // Debe estar logueado Y ser admin
   loadComponent: () => import('./pantallas/dashboard-usuarios/dashboard-usuarios').then(m => m.DashboardUsuarios)
 },
+ {
+    path: 'dashboard/estadisticas',
+    canActivate: [authGuard,adminGuard], 
+    loadComponent: () => import('./pantallas/estadisticas/estadisticas').then(m => m.DashboardEstadisticas)
+  },
   { 
     path: '**', 
     redirectTo: '' 

@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Toast } from '../utils/sweetAlert';
-import { BehaviorSubject, Subscription, timer } from 'rxjs'; 
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subscription, timer } from 'rxjs'; 
+import { map, tap } from 'rxjs/operators';
 import { AuthService } from './auth-service'; 
 import Swal from 'sweetalert2';
 
@@ -22,19 +22,19 @@ export class TimeTokenService {
   private cuentaRegresivaSub?: Subscription;
   private timerModalSub?: Subscription;
 
-  private apiUrl = 'https://prograiv-tp2-ramiro-bianucci-backend.onrender.com/auth/refresh';
+  private apiUrl = 'https://prograiv-tp2-ramiro-bianucci-backend.onrender.com/auth/refrescar';
 
 iniciarContador() {
     
     this.cuentaRegresivaSub?.unsubscribe();
     this.timerModalSub?.unsubscribe();
 
-    const diezMinutosEnMilisegundos = 10 * 60 * 1000;
+    const diezMinutosEnMiliseg = 10 * 60 * 1000;
     let tiempoExpiracion = localStorage.getItem('fecha_expiracion_contador');
 
     if (!tiempoExpiracion) {
       const ahora = new Date().getTime();
-      tiempoExpiracion = (ahora + diezMinutosEnMilisegundos).toString();
+      tiempoExpiracion = (ahora + diezMinutosEnMiliseg).toString();
       localStorage.setItem('fecha_expiracion_contador', tiempoExpiracion);
     }
 
@@ -88,11 +88,15 @@ iniciarContador() {
     });
   }
 
-  private refrescarToken() {
-    const tokenViejo = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${tokenViejo}` });
+   refrescarToken(): Observable<any> { 
+  const tokenViejo = localStorage.getItem('token');
+  
+  // Enviar el token viejo en el Body como pide la consigna de tu ruta POST
+  const body = { token: tokenViejo }; 
 
-    this.http.post<any>(this.apiUrl, {}, { headers }).subscribe({
+ //return
+  return this.http.post<any>(this.apiUrl, body).pipe(
+    tap({
       next: (res) => {
         if (res.token || res.accessToken) {
           const nuevoToken = res.token || res.accessToken;
@@ -106,8 +110,9 @@ iniciarContador() {
         console.error('Error al intentar refrescar el token:', err);
         this.forzarLogout();
       }
-    });
-  }
+    })
+  );
+}
 
   forzarLogout() {
     this.limpiarContador();          

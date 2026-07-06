@@ -1,15 +1,26 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
+// Estructura REAL que devuelve tu backend en el Login
 interface AuthResponse {
-  _id: string;
+  _id: string;         // Ajustado a lo que tira tu DB (MongoDB utiliza _id)
   email: string;
   username: string;
-  perfil: string; 
-  token: string; 
+  perfil: string;      // Viene como 'admin', 'usuario', etc.
   imagenPerfil?: string;
+  token: string;
+  message?: string;
+}
+
+// Estructura de la ruta /auth/validar (Si solo devuelve el payload del token)
+interface UsuarioDatos {
+  id?: string;
+  _id?: string; 
+  email: string;
+  username: string;
+  perfil: string;
 }
 
 @Injectable({
@@ -25,17 +36,63 @@ export class AuthService {
   constructor() {
     this.restaurarSesion();
   }
-  
+
+  private guardarToken(token: string): void {
+    localStorage.setItem('token', token);
+  }
+
+  // 1. LOGIN (POST) - Modificado para aprovechar los datos directos del Backend
   login(usuarioOCorreo: string, clave: string): Observable<AuthResponse> {
     const body = { usuarioOCorreo, clave };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, body).pipe(
       tap(response => {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('usuario', JSON.stringify(response));
-        this.tipoUsuarioActual = response.perfil; 
+        this.guardarToken(response.token);
         
-        // El contador NO SE DISPARA ACÁ. 
+        // Seteamos los datos en memoria con lo que ya nos vino del login
+        this.tipoUsuarioActual = response.perfil;
+        
+        // Guardamos el objeto de usuario completo para tenerlo disponible (imagen, mail, etc.)
+        localStorage.setItem('usuario', JSON.stringify(response));
+      })
+    );
+  }
+
+  // 2. VALIDAR POR POST (/auth/validar)
+  // Este lo va a usar principalmente tu Interceptor o los Guards cuando se recargue la página
+  validarYSetearUsuario(): Observable<UsuarioDatos | null> {
+    const token = this.getToken();
+    if (!token) {
+      this.logout();
+      return of(null);
+    }
+
+    return this.http.post<UsuarioDatos>(`${this.apiUrl}/auth/validar`, { token }).pipe(
+      tap(usuario => {
+        localStorage.setItem('usuario', JSON.stringify(usuario));
+        this.tipoUsuarioActual = usuario.perfil; 
+      }),
+      catchError(error => {
+        this.logout();
+        return throwError(() => error);
+      })
+    );
+  }
+
+  refrescarToken(): Observable<{ token: string }> {
+    const token = this.getToken();
+    if (!token) {
+      this.logout();
+      return throwError(() => new Error('No hay token disponible'));
+    }
+
+    return this.http.post<{ token: string }>(`${this.apiUrl}/auth/refrescar`, { token }).pipe(
+      tap(response => {
+        this.guardarToken(response.token); // Renovamos el token por 5 min más
+      }),
+      catchError(error => {
+        this.logout();
+        return throwError(() => error);
       })
     );
   }
@@ -51,9 +108,13 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  public getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
   private restaurarSesion(): void {
     const usuarioGuardado = localStorage.getItem('usuario');
-    const token = localStorage.getItem('token');
+    const token = this.getToken();
 
     if (token && usuarioGuardado) {
       try {
@@ -66,6 +127,6 @@ export class AuthService {
   }
 
   public isAuthenticated(): boolean {
-    return !!localStorage.getItem('token');
+    return !!this.getToken();
   }
 }

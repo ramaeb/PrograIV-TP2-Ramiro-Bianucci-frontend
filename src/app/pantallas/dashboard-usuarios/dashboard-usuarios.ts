@@ -6,7 +6,6 @@
   import { Toast, ErrorAlert } from '../../utils/sweetAlert';
 import { FechaSetPipe } from '../../pipes/fecha-set-pipe';
 import { PerfilNombrePipe } from '../../pipes/perfil-nombre-pipe';
-
   @Component({
     selector: 'app-dashboard-usuarios',
     standalone: true,

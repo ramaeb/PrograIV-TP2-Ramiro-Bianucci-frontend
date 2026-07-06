@@ -23,7 +23,7 @@ export class Publicaciones implements OnInit {
 
   
   listaPublicaciones: any[] = [];
-  ordenActual: 'fecha' | 'likes' = 'fecha'; // ○ Ordenado por fecha por defecto
+  ordenActual: 'fecha' | 'likes' = 'fecha'; // Ordenado por fecha por defecto
   
   
   limite: number = 5; // Cantidad de posts por página
@@ -72,7 +72,7 @@ crearNuevaPublicacion(titulo: string, descripcion: string) {
 
   this.http.post(this.apiUrl, formData).subscribe({
     next: (nuevaPub: any) => {
-      // Recargamos o agregamos al inicio del array para que aparezca al instante
+      
       this.listaPublicaciones.unshift(nuevaPub);
       this.selectedFile = null; // Reseteamos el archivo
       Toast.fire({
@@ -93,7 +93,7 @@ crearNuevaPublicacion(titulo: string, descripcion: string) {
       next: (data) => {
         this.listaPublicaciones = data;
         
-        // Si el backend devuelve menos elementos que el límite, significa que no hay más páginas adelante
+        
         this.hayMasPublicaciones = data.length === this.limite;
         this.cdr.detectChanges();
       },

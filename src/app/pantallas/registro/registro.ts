@@ -70,7 +70,7 @@ export class Registro {
   }
 
   registrar() {
-    // 💡 Corregido: Validamos que los campos requeridos no estén vacíos en lugar de usar .invalid
+    
     if (!this.nuevoUsuario.nombre || !this.nuevoUsuario.apellido || !this.nuevoUsuario.username || !this.nuevoUsuario.email) {
       this.mostrarError('Por favor, completa todos los campos obligatorios.');
       return; 

@@ -1,0 +1,60 @@
+/* Backdrop que oscurece el fondo y bloquea la pantalla */
+.modal-backdrop-fullscreen {
+  position: fixed; /* ◄ Clave: Se posiciona relativo a la ventana del navegador, no al componente */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente */
+  z-index: 9999; /* ◄ Clave: Un número altísimo para ganarle a cualquier card o navbar */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px); /* Efecto esmerilado de fondo */
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Caja blanca que contiene la publicación en grande */
+.modal-content-fullscreen {
+  width: 95%;
+  max-width: 850px;
+  height: 90vh; /* Ocupa casi todo el alto de la pantalla */
+  background-color: #ffffff;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.25s ease-out;
+}
+
+/* Contenedor del scroll interno para los comentarios */
+.modal-body-scroll {
+  flex: 1;
+  overflow-y: auto; /* ◄ Clave: El scroll se hace ACÁ adentro, no en la página general */
+  padding: 10px;
+}
+
+/* Animaciones fluidas */
+@keyframes fadeIn {
+  from { background-color: rgba(0, 0, 0, 0); }
+  to { background-color: rgba(0, 0, 0, 0.6); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.card-text {
+  white-space: pre-line;   /* Mantiene los saltos de línea del usuario */
+  word-wrap: break-word;   /* Fuerza el corte de palabras ultra largas */
+  overflow-wrap: break-word; /* Estándar moderno para romper texto excedente */
+  word-break: break-word;  /* Corta el texto en el borde exacto del contenedor */
+}
+.transition-link-text {
+  transition: color 0.15s ease-in-out;
+}
+
+.transition-link-text:hover {
+  text-decoration: underline !important;
+  color: #0b5ed7 !important; /* Cambia a un tono azul de link clásico al pasar el cursor */
+}
