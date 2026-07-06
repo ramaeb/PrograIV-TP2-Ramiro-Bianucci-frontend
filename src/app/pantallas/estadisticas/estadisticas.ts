@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Toast } from '../../utils/sweetAlert';
-import { forkJoin } from 'rxjs'; // 🚀 ¡CLAVE! Para unir las 3 peticiones en paralelo
+import { forkJoin } from 'rxjs'; 
 
 import { 
   Chart, 
@@ -49,33 +49,38 @@ export class DashboardEstadisticas implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
-  // 🚀 URL base apuntando a tu backend de Render
   private apiUrl = 'https://prograiv-tp2-ramiro-bianucci-backend.onrender.com/estadisticas';
 
   fechaInicio: string = '';
   fechaFin: string = '';
   cargando: boolean = false;
-  fechaMaxima: string = ''; // 🚀 Variable para el límite max
+  fechaMaxima: string = ''; 
+
+  // Referencias Viejas
   @ViewChild('barChartCanvas') barChartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartCanvas') lineChartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('doughnutChartCanvas') doughnutChartCanvas!: ElementRef<HTMLCanvasElement>;
 
+  // 🚀 Referencias Nuevas (Sprint 5)
+  @ViewChild('ingresosChartCanvas') ingresosChartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('visitasChartCanvas') visitasChartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('likesChartCanvas') likesChartCanvas!: ElementRef<HTMLCanvasElement>;
+
   chartBar: any;
   chartLine: any;
   chartDoughnut: any;
+
+  // 🚀 Gráficos Nuevos
+  chartIngresos: any;
+  chartVisitas: any;
+  chartLikes: any;
 
   ngOnInit(): void {
     const hoy = new Date();
     const haceUnMes = new Date();
     haceUnMes.setDate(hoy.getDate() - 30);
 
-    this.fechaFin = hoy.toISOString().split('T')[0];
-    this.fechaInicio = haceUnMes.toISOString().split('T')[0];
-
-    setTimeout(() => this.consultarEstadisticas(), 150);
-    // Formato YYYY-MM-DD requerido por el input date
     this.fechaMaxima = hoy.toISOString().split('T')[0];
-    
     this.fechaFin = hoy.toISOString().split('T')[0];
     this.fechaInicio = haceUnMes.toISOString().split('T')[0];
 
@@ -91,24 +96,30 @@ export class DashboardEstadisticas implements OnInit {
     this.cargando = true;
     this.cdr.detectChanges();
 
-    // 🚀 Mapeamos los nombres de los parámetros tal cual los pide tu FiltroFechaDto de NestJS
     const params = { fechaInicio: this.fechaInicio, fechaFin: this.fechaFin };
 
-    // 🚀 Creamos las 3 peticiones HTTP separadas apuntando a los endpoints del controlador
+
     const peticionPosts = this.http.get<any[]>(`${this.apiUrl}/posts-por-usuario`, { params });
     const peticionComentarios = this.http.get<any[]>(`${this.apiUrl}/comentarios-totales`, { params });
     const peticionImpacto = this.http.get<any[]>(`${this.apiUrl}/comentarios-por-post`, { params });
 
-    // 🚀 Ejecutamos en paralelo para cumplir con las rutas individuales del backend
-    forkJoin([peticionPosts, peticionComentarios, peticionImpacto]).subscribe({
-      next: ([resPosts, resComentarios, resImpacto]) => {
+    const peticionIngresos = this.http.get<any[]>(`${this.apiUrl}/ingresos-usuario`, { params });
+    const peticionVisitas = this.http.get<any[]>(`${this.apiUrl}/visitas-perfil`, { params });
+    const peticionLikes = this.http.get<any[]>(`${this.apiUrl}/likes-por-dia`, { params });
+
+    // Unimos las 6 en paralelo
+    forkJoin([
+      peticionPosts, peticionComentarios, peticionImpacto, 
+      peticionIngresos, peticionVisitas, peticionLikes
+    ]).subscribe({
+      next: ([resPosts, resComentarios, resImpacto, resIngresos, resVisitas, resLikes]) => {
         
-        // 📊 1. Gráfico de Barras: Publicaciones por Usuario
+        // --- GRÁFICOS VIEJOS ---
+        
         if (this.chartBar) this.chartBar.destroy();
         this.chartBar = new Chart(this.barChartCanvas.nativeElement, {
           type: 'bar',
           data: {
-            // Ajustá '_id' o 'username' según el formato exacto que devuelva tu agregación de Mongo
             labels: resPosts.map((u: any) => u._id || 'Anónimo'), 
             datasets: [{
               label: 'Publicaciones por Usuario',
@@ -119,7 +130,6 @@ export class DashboardEstadisticas implements OnInit {
           options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // 📈 2. Gráfico de Líneas: Evolución de Comentarios
         if (this.chartLine) this.chartLine.destroy();
         this.chartLine = new Chart(this.lineChartCanvas.nativeElement, {
           type: 'line',
@@ -137,7 +147,6 @@ export class DashboardEstadisticas implements OnInit {
           options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // 🍩 3. Gráfico de Dona: Impacto por Publicación
         if (this.chartDoughnut) this.chartDoughnut.destroy();
         this.chartDoughnut = new Chart(this.doughnutChartCanvas.nativeElement, {
           type: 'doughnut',
@@ -146,6 +155,56 @@ export class DashboardEstadisticas implements OnInit {
             datasets: [{
               data: resImpacto.map((p: any) => p.cantidadComentarios),
               backgroundColor: ['#ffc107', '#dc3545', '#0dcaf0', '#6610f2', '#fd7e14']
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        
+
+        if (this.chartIngresos) this.chartIngresos.destroy();
+        this.chartIngresos = new Chart(this.ingresosChartCanvas.nativeElement, {
+          type: 'bar',
+          data: {
+            labels: resIngresos.map((u: any) => u._id ? '@' + u._id : 'Anónimo'),
+            datasets: [{
+              label: 'Cantidad de Logins',
+              data: resIngresos.map((u: any) => u.cantidad),
+              backgroundColor: '#6f42c1', // Morado
+              borderRadius: 4
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // 2. Evolución de Likes - Línea
+        if (this.chartLikes) this.chartLikes.destroy();
+        this.chartLikes = new Chart(this.likesChartCanvas.nativeElement, {
+          type: 'line',
+          data: {
+            labels: resLikes.map((l: any) => l._id),
+            datasets: [{
+              label: 'Likes Otorgados',
+              data: resLikes.map((l: any) => l.cantidad),
+              borderColor: '#dc3545', // Rojo
+              backgroundColor: 'rgba(220, 53, 69, 0.15)',
+              tension: 0.3,
+              fill: true,
+              pointBackgroundColor: '#dc3545'
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // 3. Visitas a Perfiles - Dona
+        if (this.chartVisitas) this.chartVisitas.destroy();
+        this.chartVisitas = new Chart(this.visitasChartCanvas.nativeElement, {
+          type: 'doughnut',
+          data: {
+            labels: resVisitas.map((v: any) => v.username ? '@' + v.username : 'Perfil'),
+            datasets: [{
+              data: resVisitas.map((v: any) => v.cantidad),
+              backgroundColor: ['#20c997', '#0dcaf0', '#ffc107', '#fd7e14', '#e83e8c']
             }]
           },
           options: { responsive: true, maintainAspectRatio: false }

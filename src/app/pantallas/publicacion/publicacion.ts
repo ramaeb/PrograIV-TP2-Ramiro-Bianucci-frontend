@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { CortarTextoPipe } from '../../pipes/cortar-texto-pipe';
 import { ContadorCaracteresDirective } from '../../directivas/contar-caracteres';
 import { RouterModule } from '@angular/router'; 
+
 @Component({
   selector: 'app-publicacion-card',
   standalone: true,
@@ -33,9 +34,8 @@ export class PublicacionComponent implements OnInit {
   mostrarComentarios: boolean = false;
   nuevoComentarioTexto: string = '';
 
-  // ◄ NUEVAS PROPIEDADES PARA LAS CONSIGNAS:
-  comentariosLimite: number = 3; // Cantidad inicial de comentarios a mostrar
-  modalAbierto: boolean = false; // Controla la vista en grande tipo "otra página"
+  comentariosLimite: number = 3; 
+  modalAbierto: boolean = false; 
 
   ngOnInit() {
     const usuarioLocal = localStorage.getItem('usuario');
@@ -43,20 +43,23 @@ export class PublicacionComponent implements OnInit {
       const user = JSON.parse(usuarioLocal);
       this.miUsuarioId = user._id || user.uid;
       this.miUsername = user.username; 
-      this.yaTieneMiLike = this.post.likes?.includes(this.miUsuarioId);
+      
+      // 🚀 CORRECCIÓN CLAVE: Buscamos adentro de la propiedad usuarioId del nuevo objeto de likes
+      this.yaTieneMiLike = this.post.likes?.some((like: any) => 
+        // Agregamos un fallback por si quedaron likes viejos (strings puros) en tu base de datos
+        like.usuarioId === this.miUsuarioId || like === this.miUsuarioId
+      );
     }
   }
 
-  // Aumenta el límite sin perder los comentarios anteriores
   cargarMasComentarios(event: Event) {
-    event.stopPropagation(); // Evita que se abra el modal al hacer click en el botón
+    event.stopPropagation();
     this.comentariosLimite += 5;
     this.cdr.detectChanges();
   }
 
   abrirModal() {
     this.modalAbierto = true;
-    // Opcional: bloquea el scroll del fondo
     document.body.style.overflow = 'hidden';
   }
 

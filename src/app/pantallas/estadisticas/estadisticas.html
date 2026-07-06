@@ -60,8 +60,8 @@
       </div>
     </div>
 
-    <div class="col-12 col-md-8 col-xl-6 mx-auto">
-      <div class="card shadow-sm border-0">
+    <div class="col-12 col-xl-6">
+      <div class="card h-100 shadow-sm border-0">
         <div class="card-header bg-white py-3 border-bottom-0">
           <h5 class="card-title mb-0 text-warning fw-bold"><i class="bi bi-pie-chart-fill me-2"></i>Impacto por Publicación</h5>
           <small class="text-muted">Distribución de comentarios recibidos por cada post.</small>
@@ -69,6 +69,48 @@
         <div class="card-body p-4">
           <div style="display: block; width: 100%; max-height: 300px;">
             <canvas #doughnutChartCanvas></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom-0">
+          <h5 class="card-title mb-0 fw-bold" style="color: #6f42c1;"><i class="bi bi-door-open-fill me-2"></i>Accesos por Usuario</h5>
+          <small class="text-muted">Cantidad total de ingresos (log in) acumulados en el sistema.</small>
+        </div>
+        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+          <div style="display: block; width: 100%; max-height: 300px;">
+            <canvas #ingresosChartCanvas></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom-0">
+          <h5 class="card-title mb-0 text-danger fw-bold"><i class="bi bi-heart-fill me-2"></i>Me Gusta por Día</h5>
+          <small class="text-muted">Volumen de interacciones.</small>
+        </div>
+        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+          <div style="display: block; width: 100%; max-height: 300px;">
+            <canvas #likesChartCanvas></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-white py-3 border-bottom-0">
+          <h5 class="card-title mb-0 text-info fw-bold"><i class="bi bi-eye-fill me-2"></i>Visitas a Perfiles</h5>
+          <small class="text-muted">Ranking de usuarios más vistos por terceros.</small>
+        </div>
+        <div class="card-body p-4">
+          <div style="display: block; width: 100%; max-height: 300px;">
+            <canvas #visitasChartCanvas></canvas>
           </div>
         </div>
       </div>

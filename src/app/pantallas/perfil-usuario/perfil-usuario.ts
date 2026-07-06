@@ -54,8 +54,9 @@ export class PerfilUsuario implements OnInit {
             this.router.navigate(['/mi-perfil']);
             return;
           }
+          this.http.patch(`${this.baseUsuariosUrl}/${user._id}/registrar-visita`, {}).subscribe();
         }
-
+        
         // Si es otro usuario, gatillamos tu query de publicaciones limitando a 3 por consigna
         this.obtenerPublicaciones(user._id);
       },

@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth-service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
-import { PublicacionComponent } from '../publicacion/publicacion'; // Ajustá la ruta real a tu
+import { PublicacionComponent } from '../publicacion/publicacion'; 
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,

@@ -11,10 +11,10 @@ export class FechaSetPipe implements PipeTransform {
 
     const fecha = new Date(fechaString + 'T00:00:00');
     
-    if (isNaN(fecha.getTime())) return fechaString; // Si no es una fecha válida, devuelve el string original
+    if (isNaN(fecha.getTime())) return fechaString; // devuelve el string original si no es fecha válida
 
     if (tipo === 'largo') {
-      // Retorna: "24 de septiembre de 2005"
+
       return fecha.toLocaleDateString('es-AR', {
         day: 'numeric',
         month: 'long',
@@ -22,7 +22,6 @@ export class FechaSetPipe implements PipeTransform {
       });
     }
 
-    // Retorna por defecto "corto": "24/09/2005"
     return fecha.toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
